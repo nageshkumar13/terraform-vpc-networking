@@ -24,6 +24,11 @@ resource "aws_route_table_association" "routeAssoSub" {
 resource "aws_route_table" "private_route_table" {
   vpc_id = aws_vpc.main.id
 
+    route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat-GW.id
+  }
+
   tags = {
     Name = "pvt-routeTable"
   }
@@ -38,10 +43,26 @@ resource "aws_route_table_association" "routeAssoPvt" {
 }
 
 
+#create dB route table 
+
+resource "aws_route_table" "dB_route_table" {
+  vpc_id = aws_vpc.main.id
+
+    route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat-GW.id
+  }
+
+  tags = {
+    Name = "db-routeTable"
+  }
+}
+
+
 #create an association between the private route table and dB-subnet
 
-resource "aws_route_table_association" "privateRT_dB_subnet" {
+resource "aws_route_table_association" "rT_dB_asso" {
   count                   = length(aws_subnet.dB_subnet)
   subnet_id      = aws_subnet.dB_subnet[count.index].id
-  route_table_id = aws_route_table.private_route_table.id
+  route_table_id = aws_route_table.dB_route_table.id
 }
